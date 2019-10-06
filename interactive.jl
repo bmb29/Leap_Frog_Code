@@ -20,4 +20,6 @@ stable = [0., 0.1, 0.5, 0.]
 
 plane = (1, 0.0)
 
+#does this work?
+
 psos = interactive_poincaresos(ds, plane, (2, 4), complete; markersizes = (-5, -1))
