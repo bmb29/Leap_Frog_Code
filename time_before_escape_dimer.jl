@@ -24,10 +24,10 @@ include("escape_num_dimer.jl")
     using Printf
     using MATLAB
     using .escape_num_dimer
-    t_end = exp(3)
+    t_end = exp(5)
     # width = sqrt(3); height = 1
     width = 2.5; height=5
-    n_iter_Q = 5000;n_iter_P = n_iter_Q; N = n_iter_P * n_iter_Q;
+    n_iter_Q = 500;n_iter_P = n_iter_Q; N = n_iter_P * n_iter_Q;
     ArrP = range(-width, stop = width, length = n_iter_P)
     ArrQ = range(0, stop = height, length = n_iter_Q)
     mesh_P=[P for Q in ArrQ, P in ArrP]
@@ -49,7 +49,7 @@ end
     @everywhere nQ = @sprintf("%d",n_iter_Q)
     @everywhere file_name = location * "Dimer_TIME_before_Escape_" * h *nQ* ".fig"
     println(file_name)
-    h_BSON=location*"escape_TIME_cdata"*h*nQ*".bson"
+    h_BSON="escape_TIME_cdata"*h*nQ*".bson"
     num_until_exit = @showprogress pmap(escape_num_dimer.escape_exit_num_dimer, mesh, t_end, Energy)
 
     logz=log1p.(num_until_exit)

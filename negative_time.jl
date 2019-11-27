@@ -9,50 +9,43 @@ using Printf
 
 
 include("leap_frog_definitions.jl")
-max_hit_q1 = 1
-max_hit_p1=1000
-barrier = 4
+max_hit_q1_back = 1
+barrier = 5
 
 
-condition_max_hits(u, t, integrator) = u[3] > max_hit_q1 || u[6]>max_hit_p1
+condition_max_hits_back_one(u, t, integrator) = u[3] == max_hit_q1_back
 affect_stop!(integrator) = terminate!(integrator)
 function condition_hits_PSS_q1(u, t, integrator) # Event when event_f(u,t) == 0
-    u[5]
-end
-
-function condition_hits_PSS_p2(u, t, integrator) # Event when event_f(u,t) == 0
     u[1]
 end
 
 function affect_update_iterator_q1!(integrator)
     integrator.u[3] = integrator.u[3] + 1
 end
-function affect_update_iterator_p2!(integrator)
-    integrator.u[6] = integrator.u[6] + 1
-end
 
 
-callback_max_hits = DiscreteCallback(condition_max_hits, affect_stop!)
-callback_hits_PSS_q1 = ContinuousCallback(condition_hits_PSS_q1, affect_update_iterator_q1!, nothing)
-callback_hits_PSS_p2 = ContinuousCallback(condition_hits_PSS_p2, affect_update_iterator_p2!, nothing)
 
-cb = CallbackSet(callback_hits_PSS_q1, callback_hits_PSS_p2, callback_max_hits)
+callback_max_hits_back_one = DiscreteCallback(condition_max_hits_back_one, affect_stop!)
+callback_hits_PSS_q1 = ContinuousCallback(condition_hits_PSS_q1,nothing,affect_update_iterator_q1!)
+cb_neg = CallbackSet(callback_hits_PSS_q1, callback_max_hits_back_one)
 
-function negative_time(point, t_end, H)
+function back_one(Q2,P2, t_end, H)
+    P1 = P1_poly(Q2, P2, H)
+    if ~isempty(P1) 
         q0, p0 = [zeros(3) for i in 1:2]
-        q0[1] = point[1]
-        q0[2] = point[2]
+        q0[1] = 0
+        q0[2] = Q2
         q0[3] = 0
-        p0[1] = point[3]
-        p0[2] = point[4]
+        p0[1] = P1[1]
+        p0[2] = P2
         p0[3] = 0
        #constructor for ODE
-        prob = HamiltonianProblem{true}(Hamiltonian_Dimer, p0, q0, (0., t_end));
+        prob = HamiltonianProblem{true}(Hamiltonian_Dimer_Backwards, q0, p0, (0., t_end));
         #solve ode , save_everystep=false is important to prevent sol to include all points, not just event points
-        sol=solve(prob, RK4(),maxiters=1e20,callback=cb,save_start=true,save_end=false,save_everystep=false)
+        # sol=solve(prob, RK4(),maxiters=1e20,callback=cb,save_start=false,save_end=true,save_everystep=false)
 
         # sol=solve(prob, RK4(),maxiters=1e20,reltol=1e-8,abstol=1e-10,callback=cb,save_start=true,save_end=true,save_everystep=false)
-        # sol=solve(prob, Vern9(),maxiters=1e20, reltol=1e-10,abstol=1e-12,callback=cb,save_start=true,save_end=false,save_everystep=false)
+        sol=solve(prob, Vern9(),maxiters=1e20, reltol=1e-13,abstol=1e-15,callback=cb_neg,save_start=false,save_end=true,save_everystep=false)
 
         uf=zeros(6)
         uf[1]=sol[1,end]
@@ -70,8 +63,8 @@ function negative_time(point, t_end, H)
         diff=abs(Hamiltonian_Dimer(q,p,0)-H)
 
 
-        if uf[6]==1
-            return p1,p2,q1,q2
+        if uf[3]==1 && diff<1e-10 
+            return q1,q2,p1,p2 
        
         end
         # if dH<1e-5
@@ -81,4 +74,5 @@ function negative_time(point, t_end, H)
         #         return -1
         #     end
         # end
+    end
 end

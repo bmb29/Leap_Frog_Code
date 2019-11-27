@@ -1,6 +1,7 @@
 include("leap_frog_definitions.jl")
-max_hit_q1 = 10000
-max_hit_p2 = 100
+using PolynomialRoots
+max_hit_q1 = 2000
+max_hit_p2 = 2000
 barrier = 5
 
 
@@ -30,10 +31,7 @@ cb = CallbackSet(callback_hits_PSS_q1, callback_hits_PSS_p2, callback_max_hits)
 
 function PSS_function(Q2,P2, H,  t_end)
     #for a given Q,P,H with X=0
-    P1=P1_find_dimer(Q2,P2,H)
-    if isempty(P1)
-        P1=P1_find_dimer_second(Q2,P2,H)
-    end
+    P1 = P1_poly(Q2, P2, H)
     if ~isempty(P1)
         # println(Q1)
         q0,p0=[zeros(3) for i in 1:2]
@@ -46,11 +44,11 @@ function PSS_function(Q2,P2, H,  t_end)
        #constructor for ODE
         prob= HamiltonianProblem{true}(Hamiltonian_Dimer, q0, p0, (0., t_end));
         #solve ode , save_everystep=false is important to prevent sol to include all points, not just event points
-        sol=solve(prob, Vern9(),maxiters=1e20, reltol=1e-10,abstol=1e-12,callback=cb,save_start=true,save_end=true,save_everystep=false)
+        sol=solve(prob, Tsit5(), maxiters=1e20, reltol=1e-8, abstol=1e-11, callback=cb, save_start=true, save_end=true, save_everystep=false)
         # sol=solve(prob, RK4(),maxiters=1e20, reltol=1e-8,callback=cb,save_start=true,save_end=true,save_everystep=false)
         #output Q, P and dH
         Q1=sol[:,2:end-1][1,:]
-        bool_filter=[abs(q1)<1e-10 for q1 in Q1]
+        bool_filter=[abs(q1)<1e-6 for q1 in Q1]
         return sol[:,2:end-1][2,:][bool_filter],sol[:,2:end-1][5,:][bool_filter]
     else
     #need to return 3 values, dH=1 flags that there is no Y

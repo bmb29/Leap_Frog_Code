@@ -10,8 +10,8 @@ using Printf
 
 
 include("leap_frog_definitions.jl")
-max_hit_q1 = 100
-max_hit_p2 = 100
+max_hit_q1 = 10000
+max_hit_p2 = 10000
 barrier = 5
 
 
@@ -59,7 +59,7 @@ function escape_exit_num_dimer(mesh_list, t_end, H)
        #constructor for ODE
         prob = HamiltonianProblem{true}(Hamiltonian_Dimer, q0, p0, (0., t_end));
         #solve ode , save_everystep=false is important to prevent sol to include all points, not just event points
-        sol = solve(prob, RK4(), maxiters = 1e10,  callback = cb, save_start = true, save_end = true, save_everystep = false)
+        sol = solve(prob, Vern9(),  reltol=1e-13,abstol=1e-15,maxiters = 1e10,  callback = cb, save_start = true, save_end = true, save_everystep = false)
         # uf=zeros(6)
         # uf[1]=sol[1,end]
         # uf[2]=sol[2,end]

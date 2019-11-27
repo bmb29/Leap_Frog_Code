@@ -12,22 +12,22 @@ include("PSS_Definitions_Dimer_X.jl")
 # H=range(.191,stop=0.25,length=20)
 
 # @showprogress 1 "Computing..." for Energy in H
-Energy=.18
+Energy=.2
 location="/mnt/bdd38f66-9ece-451a-b915-952523c139d2/"
 h=replace(@sprintf("%.15f",Energy),"."=>"_")
 
 t_end=1e5;
-N_iter_Q=51;#50
-Q_start=-2.25
-Q_end=2.25
-N_iter_P=7
-P_start=0
-P_end=4.5
+N_iter_Q=10;#50
+Q_start=-1.0
+Q_end=1.0
+N_iter_P=20
+P_start=0.0
+P_end=.9
 nQ=@sprintf("_%d",N_iter_Q)
 nP=@sprintf("_%d",N_iter_P)
 h_title=@sprintf("%.8f",Energy)
-file_name=location*"DIMER_PSS_X"*h*nQ*nP*".fig"
-h_BSON=location*"DIMER_PSS_X"*h*nQ*nP*".bson"
+file_name="DIMER_PSS_X"*h*nQ*nP*".fig"
+h_BSON="DIMER_PSS_X"*h*nQ*nP*".bson"
 
 ArrP=range(P_start,stop=P_end,length=N_iter_P)
 ArrQ=range(Q_start,stop=Q_end,length=N_iter_Q)
@@ -52,11 +52,14 @@ end
 # end
 
 @save h_BSON SAVE_DATA
+Yfind(h)=sqrt(h/(2h+1))
+P=Yfind(Energy)
 mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1500]); hold on;"
 mat"xlabel('Q')"
 mat"ylabel('P')"
 mat"title($h_title)"
 mat"axis([-3, 3, -3, 3])"
+# mat"axis([-.4, .4, -.5, .5])"
 for k=1:N_iter_Q
     for j=1:N_iter_P
         Q_PSS,P_PSS= SAVE_DATA[(ArrQ[k],ArrP[j])]
@@ -67,5 +70,10 @@ for k=1:N_iter_Q
         # mat"plot(-$Q_PSS,-$P_PSS,'.','MarkerSize',3,'color',$current_color); hold on;"
     end
 end
+Q_fix=sqrt(6)/3
+mat"plot($Q_fix,0,'b.','MarkerSize',30)"
+mat"plot(-$Q_fix,0,'b.','MarkerSize',30)"
+mat"plot(0,$P,'r.','MarkerSize',30)"
+mat"plot(0,-$P,'r.','MarkerSize',30)"
 mat"savefig($file_name)"
 # end
