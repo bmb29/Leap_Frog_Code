@@ -12,17 +12,18 @@ include("PSS_Definitions_Dimer_X.jl")
 # H=range(.191,stop=0.25,length=20)
 
 # @showprogress 1 "Computing..." for Energy in H
-Energy=.2
-location="/mnt/bdd38f66-9ece-451a-b915-952523c139d2/"
+Energy=.08
+location_fig="/media/brandon_behring/Extra Space/MATLAB_FIGURES/"
+location_BSON="/media/brandon_behring/Extra Space/BSON_FILES/"
 h=replace(@sprintf("%.15f",Energy),"."=>"_")
 
 t_end=1e5;
-N_iter_Q=10;#50
-Q_start=-1.0
-Q_end=1.0
+N_iter_Q=20;#50
+Q_start=-1.4
+Q_end=1.4
 N_iter_P=20
 P_start=0.0
-P_end=.9
+P_end=.5
 nQ=@sprintf("_%d",N_iter_Q)
 nP=@sprintf("_%d",N_iter_P)
 h_title=@sprintf("%.8f",Energy)
@@ -58,14 +59,14 @@ mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1500]); hold on;"
 mat"xlabel('Q')"
 mat"ylabel('P')"
 mat"title($h_title)"
-mat"axis([-3, 3, -3, 3])"
-# mat"axis([-.4, .4, -.5, .5])"
+# mat"axis([-3, 3, -3, 3])"
+mat"axis([-1.4, 1.4, -.5, .5])"
 for k=1:N_iter_Q
     for j=1:N_iter_P
         Q_PSS,P_PSS= SAVE_DATA[(ArrQ[k],ArrP[j])]
         current_color=Brandons_Colors[mod(k*j,length(Brandons_Colors))+1]
-        mat"plot($Q_PSS,$P_PSS,'.','MarkerSize',3,'color',$current_color); hold on;"
-        mat"plot(-$Q_PSS,-$P_PSS,'.','MarkerSize',3,'color',$current_color); hold on;"
+        mat"plot($Q_PSS,$P_PSS,'.','MarkerSize',2,'color',$current_color); hold on;"
+        mat"plot(-$Q_PSS,-$P_PSS,'.','MarkerSize',2,'color',$current_color); hold on;"
 
         # mat"plot(-$Q_PSS,-$P_PSS,'.','MarkerSize',3,'color',$current_color); hold on;"
     end
