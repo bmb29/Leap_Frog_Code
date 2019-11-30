@@ -36,7 +36,7 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
     Point_2=[0,sqrt(2)]
     Point_3=[0,-sqrt(2)]
     Point=[.8*Q2,P2]
-    if norm(Point_2-Point)>.8 && norm(Point_3-Point)>.8 && norm(Point_1-Point)>.235
+    if norm(Point_2-Point)>.8 && norm(Point_3-Point)>.8 && norm(Point_1-Point)>.14
         P1 = P1_poly(Q2, P2, H)
         if ~isempty(P1)
             u0=zeros(6)

@@ -42,16 +42,22 @@ while count <= length(H)
     # Q_start=.20
     # Q_end=2.5
     @everywhere  Q_end=5e-2
-    # @everywhere  Q_start=-Q_end
+    @everywhere  Q_end=1.1
+
+
+    @everywhere  Q_start=-Q_end
     # @everywhere  Q_end=.00002
-    @everywhere  Q_start=0.0
+    # @everywhere  Q_start=0.0
     # @everywhere  Q_end=1.1
  
     # @everywhere  n_iter_P=2001
     # @everywhere  P_start=-.5
     @everywhere  n_iter_P=500
-    @everywhere  P_start=P-6e-4
-    @everywhere  P_end=P+5e-4
+    # @everywhere  P_start=P-6e-4
+    # @everywhere  P_end=P+5e-4
+
+    @everywhere  P_start=0.0
+    @everywhere  P_end=.5
     # P_end=1
     @everywhere  N=n_iter_Q*n_iter_P
     @everywhere  t_end_mesh = t_end * ones(n_iter_Q,n_iter_P)
