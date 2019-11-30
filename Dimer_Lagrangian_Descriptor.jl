@@ -1,9 +1,11 @@
 module Dimer_Lagrangian_Descriptor
 export Dimer_Lagrangian_Descriptor_Function
+export gradient_matrix_4
 using PolynomialRoots
 using DifferentialEquations
 using Printf
 using LinearAlgebra
+using Roots
 include("leap_frog_definitions.jl")
 
 barrier=5
@@ -61,7 +63,7 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-5,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
             sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
-            sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         
             # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
@@ -99,7 +101,7 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
         # uf[3]=sol[3,end] #Q
         # uf[4]=sol[4,end] #Y
         # dH=abs(H_test(uf)-H)
-        LD=sol_f[1,end]+sol_b[1,end]
+        LD=sol_f[1,end]#+sol_b[1,end]
            return LD
         else
             return NaN
@@ -108,5 +110,17 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
         return NaN
     end
 end
-
+function gradient_matrix_4(LD_Matrix,dx,dy)
+    N,N=size(LD_Matrix)
+    grad_X_Matrix=zeros(N-4,N-4)
+    grad_Y_Matrix=zeros(N-4,N-4)
+    for i=1:N-4
+        for j=1:N-4
+            grad_X_Matrix[i,j]=-LD_Matrix[i+4,j+1]+8*LD_Matrix[i+3,j+1]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i,j+1]
+            grad_Y_Matrix[i,j]=-LD_Matrix[i+1,j+4]+8*LD_Matrix[i+1,j+3]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i+1,j]
+        end
+    end
+    grad_M=( grad_X_Matrix/(12*dx) ).^2+( grad_Y_Matrix/(12*dy) ).^2
+    return sqrt.(grad_M)
+end
 end

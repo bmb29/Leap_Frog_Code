@@ -11,7 +11,7 @@ max_hit=100
 
 mat"""
 figure; hold on;
-set(gcf, 'Position',  [0, 0, 1500, 1000])
+set(gcf, 'Position',  [0, 0, 2000, 1500])
 """
 # set(gca,'XTick',[])
 # set(gca,'YTick',[])

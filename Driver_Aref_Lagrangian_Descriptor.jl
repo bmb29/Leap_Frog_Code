@@ -17,7 +17,7 @@ include("Aref_Lagrangian_Descriptor.jl")
     # H=range(.11,stop=0.145,length=107)
     # Energy=0.112012
     # Energy=.125789
-    Energy=.128
+    Energy=.129
     # Energy=.12501
     # Energy=.12501
     # Energy=.1249
@@ -25,24 +25,26 @@ include("Aref_Lagrangian_Descriptor.jl")
     t_typical=Aref_Lagrangian_Descriptor.final_T(Energy)
     # file_name=location*h*".fig"
     #defining colors for PSS
-    n_iter_Q=500;#50
+    n_iter_Q=1000;#50
     # Q_start=.20
-    Q_end=.002
+    P_end=3.0*1e-3
+    P_start=-P_end
     # Q_end=.7
-    n_iter_P=500
+    n_iter_P=1000
     # P_start=
     # P_end=.2
-    P_end=.0002
-    t_end=50*t_typical
+    Q_end=.035
+    Q_start=-Q_end
+    t_end=t_typical
     N=n_iter_Q*n_iter_P
     t_end_mesh = t_end * ones(n_iter_Q,n_iter_P)
     Energy_mesh = Energy* ones(n_iter_Q,n_iter_P)
-    ArrP=range(0,stop=P_end,length=n_iter_P)
-    ArrQ=range(0,stop=Q_end,length=n_iter_Q)
+    ArrP=range(P_start,stop=P_end,length=n_iter_P)
+    ArrQ=range(Q_start,stop=Q_end,length=n_iter_Q)
     mesh = [(P, Q) for Q in ArrQ, P in ArrP]
     mesh_list = reshape(mesh, 1, :)
 end
-@everywhere location="/home/brandon_behring/Desktop/MATLAB_FIGURES/"
+@everywhere location="/media/brandon_behring/Extra_Space/MATLAB_FIGURES/"
 @everywhere h=replace(@sprintf("%.15f",Energy),"."=>"_")
 @everywhere nQ = @sprintf("_%d",n_iter_Q)
 @everywhere tend= @sprintf("_%d",t_end)
@@ -72,10 +74,16 @@ smallest=minimum(filter(!isnan,LD))
 # mat"imagesc([0,$P_end],[0,-$Q_end ],$LD, $clims)"
 # mat"imagesc([0,-$P_end],[0,-$Q_end ],$LD, $clims)"
 
-mat"imagesc([0,$P_end],[0,$Q_end ],$LD)"
-mat"imagesc([0,-$P_end],[0,$Q_end ],$LD)"
-mat"imagesc([0,$P_end],[0,-$Q_end ],$LD)"
-mat"imagesc([0,-$P_end],[0,-$Q_end ],$LD)"
+
+mat"imagesc([$P_start,$P_end],[$Q_start,$Q_end ],$LD)"
+# mat"imagesc([0,-$P_end],[0,$Q_end ],$LD)"
+# mat"imagesc([0,$P_end],[0,-$Q_end ],$LD)"
+# mat"imagesc([0,-$P_end],[0,-$Q_end ],$LD)"
+
+# mat"imagesc([0,$P_end],[0,$Q_end ],$LD)"
+# mat"imagesc([0,-$P_end],[0,$Q_end ],$LD)"
+# mat"imagesc([0,$P_end],[0,-$Q_end ],$LD)"
+# mat"imagesc([0,-$P_end],[0,-$Q_end ],$LD)"
 
 mat"colorbar"
 mat"axis([ -$P_end,$P_end,-$Q_end,$Q_end ])"

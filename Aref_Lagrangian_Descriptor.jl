@@ -36,8 +36,8 @@ function Aref_Lagrangian_Descriptor_Function(mesh, H,  t_end)
         prob_f = ODEProblem(Eq_of_M_Lagrangian_Descriptors,u0,(0., t_end))
         
 
-        sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-8,abstol=1e-8,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
-        sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-8,abstol=1e-8,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+        sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+        # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         
         # sol_f=solve(prob_f,  Vern9(),maxiters=1e20,reltol=1e-14,abstol=1e-14,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         # sol_b=solve(prob_b,  Vern9(),maxiters=1e20,reltol=1e-14,abstol=1e-14,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol
@@ -65,7 +65,7 @@ function Aref_Lagrangian_Descriptor_Function(mesh, H,  t_end)
         # uf[4]=sol[4,end] #Y
         # dH=abs(H_test(uf)-H)
 
-        LD=sol_f[1,end]+sol_b[1,end]
+        LD=sol_f[1,end]#+sol_b[1,end]
         # if maximum([abs(sol_f[1,end]),abs(sol_f[2,end]),abs(sol_f[3,)nd]),abs(sol_f[4,end]),abs(sol_b[1,end]),abs(sol_b[2,end]),abs(sol_b[3,end]),abs(sol_b[4,end])])<barrier
         return LD
     else

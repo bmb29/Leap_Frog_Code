@@ -1,7 +1,7 @@
 include("leap_frog_definitions.jl")
 using PolynomialRoots
-max_hit_q1 = 2000
-max_hit_p2 = 2000
+max_hit_q1 = 10000
+max_hit_p2 = 10000
 barrier = 5
 
 
@@ -24,10 +24,12 @@ end
 
 
 callback_max_hits = DiscreteCallback(condition_max_hits, affect_stop!)
-callback_hits_PSS_q1 = ContinuousCallback(condition_hits_PSS_q1, affect_update_iterator_q1!, nothing, rootfind=true)
-callback_hits_PSS_p2 = ContinuousCallback(condition_hits_PSS_p2, affect_update_iterator_p2!, nothing,save_positions = (false,false))
+callback_hits_PSS_q1 = ContinuousCallback(condition_hits_PSS_q1, nothing, affect_update_iterator_q1!, rootfind=true)
+callback_hits_PSS_p2 = ContinuousCallback(condition_hits_PSS_p2,  affect_update_iterator_p2!, save_positions = (false,false))
 
 cb = CallbackSet(callback_hits_PSS_q1, callback_hits_PSS_p2, callback_max_hits)
+# cb = CallbackSet(callback_hits_PSS_q1, callback_max_hits)
+
 
 function PSS_function(Q2,P2, H,  t_end)
     #for a given Q,P,H with X=0
@@ -50,6 +52,8 @@ function PSS_function(Q2,P2, H,  t_end)
         Q1=sol[:,2:end-1][1,:]
         bool_filter=[abs(q1)<1e-6 for q1 in Q1]
         return sol[:,2:end-1][2,:][bool_filter],sol[:,2:end-1][5,:][bool_filter]
+        # return sol[:,2:end-1][2,:],sol[:,2:end-1][5,:]
+
     else
     #need to return 3 values, dH=1 flags that there is no Y
         return 0, 0
