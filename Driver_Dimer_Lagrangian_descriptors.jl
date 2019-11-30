@@ -35,7 +35,7 @@ include("Dimer_Lagrangian_Descriptor.jl")
     location_bson="~/Desktop/BSON_FILES/"
 end
 while count <= length(H)
-    @everywhere t_end=25
+    @everywhere t_end=100
     @everywhere P=Yfind(H[count])
 
     @everywhere     n_iter_Q=500;#50
@@ -100,8 +100,8 @@ clims=[900 1300]
 # mat"imagesc([0,-$Q_end ],[0,-$P_end],$LD)"
 # mat"imagesc([0, $Q_end ],[0,-$P_end],$LD)"
 
-mat"imagesc([0, $Q_end ],[$P_start, $P_end],$LD)"
-mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$LD)"
+mat"imagesc([$Q_start, $Q_end ],[$P_start, $P_end],$LD)"
+# mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$LD)"
 
 # mat"imagesc([0, $Q_end ],[$P_start, $P_end],$LD,$clims)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$LD,$clims)"
@@ -129,8 +129,8 @@ mat"savefig($file_name)"
 
 mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1500]); hold on;"
 mat"title($h_title)"
-mat"imagesc([0, $Q_end ],[$P_start, $P_end],$gradM, $clims)"
-mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
+mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
+# mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 mat"colorbar"
 Q_fix=sqrt(6)/3
 mat"plot($Q_fix,0,'b.','MarkerSize',30)"
