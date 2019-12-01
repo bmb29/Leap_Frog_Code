@@ -35,14 +35,14 @@ include("Dimer_Lagrangian_Descriptor.jl")
     location_bson="~/Desktop/BSON_FILES/"
 end
 while count <= length(H)
-    @everywhere t_end=100
+    @everywhere t_end=2
     @everywhere P=Yfind(H[count])
 
-    @everywhere     n_iter_Q=500;#50
+    @everywhere     N=1000;#50
     # Q_start=.20
     # Q_end=2.5
     @everywhere  Q_end=5e-2
-    @everywhere  Q_end=1.1
+    @everywhere  Q_end=2.25
 
 
     @everywhere  Q_start=-Q_end
@@ -52,14 +52,14 @@ while count <= length(H)
  
     # @everywhere  n_iter_P=2001
     # @everywhere  P_start=-.5
-    @everywhere  n_iter_P=500
-    # @everywhere  P_start=P-6e-4
-    # @everywhere  P_end=P+5e-4
+    @everywhere  n_iter_P=N
+    @everywhere  n_iter_Q=N
+    @everywhere  P_start=P-6e-4
+    @everywhere  P_end=P+5e-4
 
     @everywhere  P_start=0.0
-    @everywhere  P_end=.5
+    @everywhere  P_end=4.5
     # P_end=1
-    @everywhere  N=n_iter_Q*n_iter_P
     @everywhere  t_end_mesh = t_end * ones(n_iter_Q,n_iter_P)
     @everywhere  ArrP=range(P_start,stop=P_end,length=n_iter_P)
     @everywhere  ArrQ=range(Q_start,stop=Q_end,length=n_iter_Q)
@@ -84,8 +84,7 @@ println(tend)
 
 LD= @showprogress pmap(Dimer_Lagrangian_Descriptor.Dimer_Lagrangian_Descriptor_Function, mesh, Energy_mesh, t_end_mesh)
 
-SAVE_DATA=Dict("LD"=>LD, "mesh"=>mesh, "ArrP"=>ArrP, "ArrQ"=>ArrQ, "Energy"=>H[count])
-@save h_BSON SAVE_DATA
+
 dx=(Q_end-Q_start)/N
 dy=(P_end-P_start)/N
 
@@ -94,8 +93,9 @@ mat"title($h_title)"
 gradM=Dimer_Lagrangian_Descriptor.gradient_matrix_4(LD,dx,dy)
 biggest=maximum(filter(!isnan,gradM))
 smallest=minimum(filter(!isnan,gradM))
-
-clims=[900 1300]
+SAVE_DATA=Dict("LD"=>LD,"gradM"=>gradM,"Q_end"=>Q_end,"Q_start"=>Q_start, "P_start"=>P_start, "P_end"=>P_end,"N"=>N,"Energy"=>H[count],"ArrP"=>ArrP, "ArrQ"=>ArrQ,"t_end"=>t_end)
+@save h_BSON SAVE_DATA
+clims=[smallest biggest*.9]
 # mat"imagesc([0,$Q_end],[0,$P_end ],$LD, $clims)"
 # mat"imagesc([0,-$Q_end],[0,$P_end ],$LD, $clims)"
 # mat"imagesc([0,$Q_end],[0,-$P_end ],$LD, $clims)"
@@ -107,7 +107,8 @@ clims=[900 1300]
 # mat"imagesc([0, $Q_end ],[0,-$P_end],$LD)"
 
 mat"imagesc([$Q_start, $Q_end ],[$P_start, $P_end],$LD)"
-# mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$LD)"
+mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end],$LD)"
+
 
 # mat"imagesc([0, $Q_end ],[$P_start, $P_end],$LD,$clims)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$LD,$clims)"
@@ -124,7 +125,8 @@ mat"plot(0,-$P,'r.','MarkerSize',30)"
 
 # mat"axis([ $Q_start, $Q_end,$P_start,$P_end ])"
 # mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
-mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
+mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 # mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 # mat"axis([ $Q_start,$Q_end,-$P_end,$P_end ])"
 mat"savefig($file_name)"
@@ -135,7 +137,10 @@ mat"savefig($file_name)"
 
 mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1500]); hold on;"
 mat"title($h_title)"
-mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
+# mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
+# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
+mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM)"
+mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 mat"colorbar"
 Q_fix=sqrt(6)/3
@@ -144,7 +149,7 @@ mat"plot(-$Q_fix,0,'b.','MarkerSize',30)"
 
 mat"plot(0,$P,'r.','MarkerSize',30)"
 mat"plot(0,-$P,'r.','MarkerSize',30)"
-mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 
 
 @everywhere global count += 1
