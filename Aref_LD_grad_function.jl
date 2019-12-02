@@ -32,12 +32,12 @@ function gradM(mesh, H, t_end)
 
     ldXb=LD_Helper(mXb,H,t_end)
     ldXf=LD_Helper(mXf,H,t_end)
-    ldYb=LD_Helper(mYb,H,t_end)
-    ldYf=LD_Helper(mYf,H,t_end)
+    # ldYb=LD_Helper(mYb,H,t_end)
+    # ldYf=LD_Helper(mYf,H,t_end)
     dLDx=(ldXf-ldXb)/(2*delta)
-    dLDy=(ldYf-ldYb)/(2*delta)
-    M=(dLDx)^2+(dLDy)^2
-    return M
+    # dLDy=(ldYf-ldYb)/(2*delta)
+    # M=(dLDx)^2+(dLDy)^2
+    return maximum([log10(abs(dLDx)),4])
 
 end
 
@@ -60,8 +60,8 @@ function LD_Helper(mesh, H,  t_end)
         prob_f = ODEProblem(Eq_of_M_Lagrangian_Descriptors,u0,(0., t_end))
         
 
-        sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-8,abstol=1e-11,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
-        # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-8,abstol=1e-8,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+        sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-10,abstol=1e-13,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+        # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-9,abstol=1e-12,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         
         # sol_f=solve(prob_f,  Vern9(),maxiters=1e20,reltol=1e-14,abstol=1e-14,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         # sol_b=solve(prob_b,  Vern9(),maxiters=1e20,reltol=1e-14,abstol=1e-14,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol
@@ -89,14 +89,28 @@ function LD_Helper(mesh, H,  t_end)
         # uf[4]=sol[4,end] #Y
         # dH=abs(H_test(uf)-H)
 
-        LD=sol_f[1,end]#+sol_b[1,end]
+        LD=sol_f[1,end]
+        # LD=sol_b[1,end]
         # if maximum([abs(sol_f[1,end]),abs(sol_f[2,end]),abs(sol_f[3,)nd]),abs(sol_f[4,end]),abs(sol_b[1,end]),abs(sol_b[2,end]),abs(sol_b[3,end]),abs(sol_b[4,end])])<barrier
         return LD
     else
         return NaN
     end
 end
-
+function gradient_matrix(LD_Matrix,dx,dy)
+    N,N=size(LD_Matrix)
+    grad_X_Matrix=zeros(N-4,N-4)
+    grad_Y_Matrix=zeros(N-4,N-4)
+    for i=1:N-4
+        for j=1:N-4
+            grad_X_Matrix[i,j]=-LD_Matrix[i+4,j+1]+8*LD_Matrix[i+3,j+1]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i,j+1]
+            grad_Y_Matrix[i,j]=-LD_Matrix[i+1,j+4]+8*LD_Matrix[i+1,j+3]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i+1,j]
+        end
+    end
+    X= (grad_X_Matrix/(12*dx) ).^2
+    Y= (grad_Y_Matrix/(12*dy) ).^2
+    return X,Y
+end
 
 function final_T(H)
     Q=1e-8
@@ -147,18 +161,20 @@ function gradient_matrix_4(LD_Matrix,dx,dy)
     return sqrt.(grad_M)
 end
 
-function gradient_matrix_6(LD_Matrix,dx,dy)
-    N,N=size(LD_Matrix)
+
+
+function D_X(LD_Matrix,dx)
+    N=size(LD_Matrix)
     N=N-6
     grad_X_Matrix=zeros(N,N)
-    grad_Y_Matrix=zeros(N,N)
     for i=1:N
         for j=1:N
             grad_X_Matrix[i,j]=-LD_Matrix[i+4,j+1]+8*LD_Matrix[i+3,j+1]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i,j+1]
-            grad_Y_Matrix[i,j]=-LD_Matrix[i+1,j+4]+8*LD_Matrix[i+1,j+3]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i+1,j]
         end
     end
-    grad_M=( grad_X_Matrix/(12*dx) ).^2+( grad_Y_Matrix/(12*dy) ).^2
-    return sqrt.(grad_M)
+    grad_M=abs(grad_X_Matrix/(12*dx) )
+    return grad_M
 end
+
+
 end

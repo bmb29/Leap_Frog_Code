@@ -64,14 +64,14 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
             # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-5,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-5,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
-            sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         
-            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
 
-            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-9,abstol=1e-12,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-10,abstol=1e-13,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-9,abstol=1e-12,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
 
@@ -113,6 +113,20 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
     end
 end
 function gradient_matrix_4(LD_Matrix,dx,dy)
+    M,N=size(LD_Matrix)
+    grad_X_Matrix=zeros(M-4,N-4)
+    grad_Y_Matrix=zeros(M-4,N-4)
+    for i=1:M-4
+        for j=1:N-4
+            grad_X_Matrix[i,j]=-LD_Matrix[i+4,j+1]+8*LD_Matrix[i+3,j+1]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i,j+1]
+            grad_Y_Matrix[i,j]=-LD_Matrix[i+1,j+4]+8*LD_Matrix[i+1,j+3]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i+1,j]
+        end
+    end
+    grad_M=( grad_X_Matrix/(12*dx) ).^2+( grad_Y_Matrix/(12*dy) ).^2
+    return sqrt.(grad_M)
+end
+
+function gradient_matrix(LD_Matrix,dx,dy)
     N,N=size(LD_Matrix)
     grad_X_Matrix=zeros(N-4,N-4)
     grad_Y_Matrix=zeros(N-4,N-4)
@@ -122,7 +136,20 @@ function gradient_matrix_4(LD_Matrix,dx,dy)
             grad_Y_Matrix[i,j]=-LD_Matrix[i+1,j+4]+8*LD_Matrix[i+1,j+3]-8*LD_Matrix[i+1,j+1]+LD_Matrix[i+1,j]
         end
     end
-    grad_M=( grad_X_Matrix/(12*dx) ).^2+( grad_Y_Matrix/(12*dy) ).^2
-    return sqrt.(grad_M)
+    X= (grad_X_Matrix/(12*dx) ).^2
+    Y= (grad_Y_Matrix/(12*dy) ).^2
+    return X,Y
 end
+
+function D_X(LD_Matrix,dx)
+    N=length(LD_Matrix)
+    N=N-4
+    grad_X_Matrix=zeros(N)
+    for i=1:N
+        grad_X_Matrix[i]=-LD_Matrix[i+4]+8*LD_Matrix[i+3]-8*LD_Matrix[i+1]+LD_Matrix[i]
+    end
+    grad_M=abs.(grad_X_Matrix/(12*dx) )
+    return grad_M
+end
+
 end

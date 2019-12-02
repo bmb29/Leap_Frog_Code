@@ -4,6 +4,8 @@ max_hit_q1 = 10000
 max_hit_p2 = 10000
 barrier = 5
 
+#This file contains the necessary functions to create PSS on X=0
+
 
 condition_max_hits(u, t, integrator) = u[3] > max_hit_q1 || u[6]>max_hit_p2 || maximum([abs(u[1]),abs(u[2]),abs(u[4]),abs(u[5])]) > barrier
 affect_stop!(integrator) = terminate!(integrator)
