@@ -61,8 +61,6 @@ dy=(Q_end-Q_start)/N
 
 gradM_X,gradM_Y=Aref_LD_grad_function.gradient_matrix(LD,dx,dy)
 
-gradM_X,gradM_Y=gradient_matrix(LD,dx,dy)
-
 Log_gradM_X=log10.(gradM_X)
 Log_gradM_Y=log10.(gradM_Y)
 
@@ -114,8 +112,8 @@ Nl,Nl=size(gradM_X)
 gradM2=zeros(Nl,Nl)
 for i=1:Nl
     for j=1:Nl
-        cutoff_X=biggest_X-4
-        cutoff_Y=biggest_Y-4
+        cutoff_X=biggest_X-5
+        cutoff_Y=biggest_Y-5
         X=maximum([Log_gradM_X[i,j], cutoff_X])
         Y=maximum([Log_gradM_Y[i,j], cutoff_Y])
 
