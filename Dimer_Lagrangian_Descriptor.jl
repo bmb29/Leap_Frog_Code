@@ -10,7 +10,7 @@ include("leap_frog_definitions.jl")
 
 barrier=5
 
-hit_max=100000
+hit_max=300
 length_max=30000
 condition_escape(u, t, integrator) =  u[5]>length_max || u[6]>hit_max || maximum([abs(u[1]),abs(u[2]),abs(u[3]),abs(u[4])]) > barrier 
 
@@ -20,7 +20,7 @@ end
 
 callback_escape = DiscreteCallback(condition_escape, affect_stop!)
 function condition_hits_PSS_p2(u, t, integrator) # Event when event_f(u,t) == 0
-    u[4] 
+    u[1] 
 end
 function affect_update_iterator_p2!(integrator)
     integrator.u[6] = integrator.u[6] + 1
@@ -35,8 +35,8 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
     Point_1=[0,0]
     Point_2=[0,sqrt(2)]
     Point_3=[0,-sqrt(2)]
-    # Point=[.8*Q2,P2]
-    Point=[Q2,P2]
+    Point=[.8*Q2,P2]
+    # Point=[Q2,P2]
 
     if norm(Point_2-Point)>.5 && norm(Point_3-Point)>.5 && norm(Point_1-Point)>.235
         P1 = P1_poly(Q2, P2, H)
@@ -64,15 +64,18 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
             # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-5,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-5,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
-            sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         
             # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
 
-            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-10,abstol=1e-13,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
-            # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-9,abstol=1e-12,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-8,abstol=1e-11,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-8,abstol=1e-11,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+
+            sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-10,abstol=1e-13,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-10,abstol=1e-13,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
 
             # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
@@ -103,7 +106,7 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
         # uf[3]=sol[3,end] #Q
         # uf[4]=sol[4,end] #Y
         # dH=abs(H_test(uf)-H)
-        LD=sol_f[1,end]#+sol_b[1,end]
+        LD=sol_f[1,end]+sol_b[1,end]
            return LD
         else
             return NaN

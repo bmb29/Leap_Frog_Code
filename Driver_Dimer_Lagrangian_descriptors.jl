@@ -26,45 +26,39 @@ include("Dimer_Lagrangian_Descriptor.jl")
 
     
     H = range(.13, stop = .155, length = 6)
-    H = range(.1285, stop = .129, length = 6)
-    t=25:30
+    H = range(.13, stop = .145, length = 11)
 
-    
-    H=.129*ones(length(t))
- 
- 
     count = 1
-    location="/home/brandon_behring/Desktop/MATLAB_FIGURES/"
-    location_bson="~/Desktop/BSON_FILES/"
     right_now = replace(replace(replace(string(Dates.now()),"."=>"_"),":"=>"_"),"-"=>"_")
 
 end
 while count <= length(H)
-    @everywhere t_end=t[count]
+    @everywhere t_end=15
+    
     @everywhere P=Yfind(H[count])
 
-    @everywhere     N=500;#50
+    @everywhere     N=1500;#50
     # Q_start=.20
     # Q_end=2.5
-    @everywhere  Q_end=5e-2
-    @everywhere  Q_end=2.25
-    @everywhere  Q_end=.65
+    # @everywhere  Q_end=5e-2
+    # @everywhere  Q_end=2.25
+    @everywhere  Q_end=.6
 
-    @everywhere  Q_start=-Q_end
+    # @everywhere  Q_start=-Q_end
     # @everywhere  Q_end=.00002
-    # @everywhere  Q_start=0.0
+    @everywhere  Q_start=0.0
     # @everywhere  Q_end=1.1
  
     # @everywhere  n_iter_P=2001
     # @everywhere  P_start=-.5
     @everywhere  n_iter_P=N
     @everywhere  n_iter_Q=N
-    @everywhere  P_start=P-6e-4
-    @everywhere  P_end=P+5e-4
+    @everywhere  P_start=P-6e-3
+    @everywhere  P_end=P+5e-3
 
     @everywhere  P_start=0.25
     @everywhere  P_end=.45
-    # P_end=1
+    # # P_end=1
     @everywhere  t_end_mesh = t_end * ones(n_iter_Q,n_iter_P)
     @everywhere  ArrP=range(P_start,stop=P_end,length=n_iter_P)
     @everywhere  ArrQ=range(Q_start,stop=Q_end,length=n_iter_Q)
@@ -78,12 +72,15 @@ while count <= length(H)
 @everywhere Q_win = @sprintf("_%.3f",Q_end)
 @everywhere P_win = @sprintf("_%.3f",P_end)
 @everywhere tend= @sprintf("_%d",t_end)
-println(tend)
 @everywhere tend_T= @sprintf("%4f",t_end)
 @everywhere h_BSON= location_bson * "BandF_Dimer_lagrangian_descriptors_data"*h*nQ*tend*Q_win*P_win*right_now*".bson"
-@everywhere file_name=location_fig* "Lagrangian_Descriptor_Dimer_"*h*nQ*tend*Q_win*P_win*right_now*".fig"
-@everywhere h_title = @sprintf("h= %.6f",H[count])*" with tend="*tend_T*" and "*nQ
+@everywhere file_name1=location_fig* "Lagrangian_Descriptor_Dimer_1_"*h*nQ*tend*Q_win*P_win*right_now*".fig"
+@everywhere file_name2=location_fig* "Lagrangian_Descriptor_Dimer_2_"*h*nQ*tend*Q_win*P_win*right_now*".fig"
+@everywhere file_name3=location_fig* "Lagrangian_Descriptor_Dimer_3_"*h*nQ*tend*Q_win*P_win*right_now*".fig"
 
+
+@everywhere h_title = @sprintf("h= %.6f",H[count])*" with tend="*tend_T*" and "*nQ
+println(h_title)
 
 
 LD= @showprogress pmap(Dimer_Lagrangian_Descriptor.Dimer_Lagrangian_Descriptor_Function, mesh, Energy_mesh, t_end_mesh)
@@ -103,11 +100,6 @@ biggest_X=maximum(filter(!isnan,Log_gradM_X))
 biggest_Y=maximum(filter(!isnan,Log_gradM_Y))
 smallest_X=minimum(filter(!isnan,Log_gradM_X))
 smallest_Y=minimum(filter(!isnan,Log_gradM_Y))
-println(biggest_X)
-println(biggest_Y)
-
-println(smallest_X)
-println(smallest_Y)
 
 # gradMl=Aref_LD_grad_function.gradient_matrix_4(LD,dx,dy)
 
@@ -123,18 +115,19 @@ Nl,Nl=size(gradM_X)
 gradM2=zeros(Nl,Nl)
 for i=1:Nl
     for j=1:Nl
-        c=4
-        cutoff_X=c
-        cutoff_Y=c
-        X=maximum([Log_gradM_X[i,j], cutoff_X])
-        Y=maximum([Log_gradM_Y[i,j], cutoff_Y])
+        c=1
+        X=Log_gradM_X[i,j]
+        Y=Log_gradM_Y[i,j]
+      
+        X=maximum([X, c])
+        Y=maximum([Y, c])
 
-        X=(X-c)/(biggest_X-c)
-        Y=(Y-c)/(biggest_Y-c)
+        # X=(X-c)/(biggest_X-c)
+        # Y=(Y-c)/(biggest_Y-c)
         # X=log10( gradM_X[i,j])
         # Y=log10( gradM_Y[i,j])
         # Z=maximum([X,Y])
-        Z=log10( ( 10^(X)+10^(Y) )/2 )
+        Z=log10( ( 10^(2*X)+10^(2*Y) ) )
         # Z=maximum([X,Y])
         gradM2[i,j]=Z
         # if Z>cutoff
@@ -188,11 +181,16 @@ SAVE_DATA=Dict("LD"=>LD,"gradM"=>gradM,"Q_end"=>Q_end,"Q_start"=>Q_start, "P_sta
 # mat"savefig($file_name)"
 
 
-mat"figure();set(gcf, 'Position',  [0, 0, 2500, 1500]); hold on;"
+mat"figure();set(gcf, 'Position',  [0, 0, 2500, 2000]); hold on;"
 mat"title($h_title)"
 # mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$LD)"
+mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $LD)"
+# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
+# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
+# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
+
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 mat"colorbar"
@@ -205,13 +203,17 @@ mat"plot(0,$P,'r.','MarkerSize',30)"
 mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
 
 
-mat"savefig($file_name)"
-mat"figure();set(gcf, 'Position',  [0, 0, 2500, 1500]); hold on;"
+mat"savefig($file_name1)"
+mat"figure();set(gcf, 'Position',  [0, 0, 2500, 2000]); hold on;"
 mat"title($h_title)"
 # mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM)"
+mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gradM)"
+# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
+# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
+
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 mat"colorbar"
 mat"plot(0,$P,'r.','MarkerSize',30)"
@@ -220,18 +222,22 @@ mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
 
 
 
-mat"savefig($file_name)"
-mat"figure();set(gcf, 'Position',  [0, 0, 2500, 1500]); hold on;"
+mat"savefig($file_name2)"
+mat"figure();set(gcf, 'Position',  [0, 0, 2500, 2000]); hold on;"
 mat"title($h_title)"
 # mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM2)"
-# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
+mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gradM2)"
+# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM2)"
+# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM2)"
+# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 mat"colorbar"
 mat"plot(0,$P,'r.','MarkerSize',30)"
 # mat"plot(0,-$P,'r.','MarkerSize',30)"
 mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+mat"savefig($file_name3)"
 
 
 # mat"plot(0,$P,'r.','MarkerSize',30)"

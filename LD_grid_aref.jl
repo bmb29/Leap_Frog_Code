@@ -17,7 +17,7 @@ include("Aref_LD_grad_function.jl")
 
     Energy=.129
     t_typical=Aref_LD_grad_function.final_T(Energy)
-    N=1000;#50
+    N=2000;#50
 
     n_iter_Q=N;#50
     # Q_end=.05
