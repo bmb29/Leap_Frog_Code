@@ -27,27 +27,27 @@ include("Dimer_Lagrangian_Descriptor.jl")
     
     H = range(.13, stop = .155, length = 6)
     H = range(.13, stop = .145, length = 11)
-
+    t=10
+    # H=[.19,.1925,.195, .1975, .2]
+    H=.12*ones(length(t))
     count = 1
     right_now = replace(replace(replace(string(Dates.now()),"."=>"_"),":"=>"_"),"-"=>"_")
-
+    
 end
 while count <= length(H)
-    @everywhere t_end=15
+    @everywhere t_end=t[count]
     
     @everywhere P=Yfind(H[count])
 
-    @everywhere     N=1500;#50
+    @everywhere     N=1000;#50
     # Q_start=.20
     # Q_end=2.5
     # @everywhere  Q_end=5e-2
     # @everywhere  Q_end=2.25
-    @everywhere  Q_end=.6
-
+    @everywhere  Q_end=1.2
     # @everywhere  Q_start=-Q_end
     # @everywhere  Q_end=.00002
     @everywhere  Q_start=0.0
-    # @everywhere  Q_end=1.1
  
     # @everywhere  n_iter_P=2001
     # @everywhere  P_start=-.5
@@ -56,7 +56,7 @@ while count <= length(H)
     @everywhere  P_start=P-6e-3
     @everywhere  P_end=P+5e-3
 
-    @everywhere  P_start=0.25
+    @everywhere  P_start=0.0
     @everywhere  P_end=.45
     # # P_end=1
     @everywhere  t_end_mesh = t_end * ones(n_iter_Q,n_iter_P)
@@ -115,7 +115,7 @@ Nl,Nl=size(gradM_X)
 gradM2=zeros(Nl,Nl)
 for i=1:Nl
     for j=1:Nl
-        c=1
+        c=0.0
         X=Log_gradM_X[i,j]
         Y=Log_gradM_Y[i,j]
       
@@ -164,8 +164,7 @@ SAVE_DATA=Dict("LD"=>LD,"gradM"=>gradM,"Q_end"=>Q_end,"Q_start"=>Q_start, "P_sta
 
 
 # mat"colorbar"
-# Q_fix=sqrt(6)/3
-# # mat"plot($Q_fix,0,'b.','MarkerSize',30)"
+
 # # mat"plot(-$Q_fix,0,'b.','MarkerSize',30)"
 
 # mat"plot(0,$P,'r.','MarkerSize',30)"
@@ -187,9 +186,9 @@ mat"title($h_title)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$LD)"
 mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $LD)"
-# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
-# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
-# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
+mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
+mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
+mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
@@ -197,10 +196,12 @@ mat"colorbar"
 # Q_fix=sqrt(6)/3
 # mat"plot($Q_fix,0,'b.','MarkerSize',30)"
 # mat"plot(-$Q_fix,0,'b.','MarkerSize',30)"
-
+Q_fix=sqrt(6)/3
+mat"plot($Q_fix,0,'k.','MarkerSize',30)"
 mat"plot(0,$P,'r.','MarkerSize',30)"
 # mat"plot(0,-$P,'r.','MarkerSize',30)"
-mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ $Q_start,$Q_end,-$P_end,$P_end ])"
 
 
 mat"savefig($file_name1)"
@@ -210,15 +211,17 @@ mat"title($h_title)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM)"
 mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gradM)"
-# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM)"
-# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
-# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
-
+mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM)"
+mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
+mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
+Q_fix=sqrt(6)/3
+mat"plot($Q_fix,0,'b.','MarkerSize',30)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 mat"colorbar"
 mat"plot(0,$P,'r.','MarkerSize',30)"
 # mat"plot(0,-$P,'r.','MarkerSize',30)"
-mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ $Q_start,$Q_end,-$P_end,$P_end ])"
 
 
 
@@ -229,14 +232,20 @@ mat"title($h_title)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM2)"
 mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gradM2)"
-# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM2)"
-# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM2)"
-# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
+mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM2)"
+mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM2)"
+mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 mat"colorbar"
 mat"plot(0,$P,'r.','MarkerSize',30)"
+Q_fix=sqrt(6)/3
+mat"plot($Q_fix,0,'b.','MarkerSize',30)"
+
+
 # mat"plot(0,-$P,'r.','MarkerSize',30)"
-mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ $Q_start,$Q_end,-$P_end,$P_end ])"
+
 mat"savefig($file_name3)"
 
 

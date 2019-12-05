@@ -10,7 +10,7 @@ include("leap_frog_definitions.jl")
 
 barrier=5
 
-hit_max=300
+hit_max=30
 length_max=30000
 condition_escape(u, t, integrator) =  u[5]>length_max || u[6]>hit_max || maximum([abs(u[1]),abs(u[2]),abs(u[3]),abs(u[4])]) > barrier 
 
@@ -156,3 +156,4 @@ function D_X(LD_Matrix,dx)
 end
 
 end
+
