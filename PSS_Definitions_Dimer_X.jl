@@ -46,6 +46,7 @@ function PSS_function(Q2,P2, H,  t_end)
         p0[2]=P2
         p0[3]=0
        #constructor for ODE
+       try
         prob= HamiltonianProblem{true}(Hamiltonian_Dimer, q0, p0, (0., t_end));
         #solve ode , save_everystep=false is important to prevent sol to include all points, not just event points
         sol=solve(prob, Tsit5(), maxiters=1e20, reltol=1e-8, abstol=1e-11, callback=cb, save_start=true, save_end=true, save_everystep=false)
@@ -55,7 +56,9 @@ function PSS_function(Q2,P2, H,  t_end)
         bool_filter=[abs(q1)<1e-6 for q1 in Q1]
         return sol[:,2:end-1][2,:][bool_filter],sol[:,2:end-1][5,:][bool_filter]
         # return sol[:,2:end-1][2,:],sol[:,2:end-1][5,:]
-
+       catch
+        return 0,0
+       end
     else
     #need to return 3 values, dH=1 flags that there is no Y
         return 0, 0

@@ -10,7 +10,7 @@ include("PSS_Definitions_Dimer_X.jl")
 # pygui(true);
 
 H=range(.08,stop=0.15,length=25)
-# H=.075
+H=.1
 @showprogress for Energy in H
 location_fig="/media/brandon_behring/Extra_Space/MATLAB_FIGURES/"
 location_BSON="/media/brandon_behring/Extra_Space/BSON_FILES/"
@@ -69,7 +69,7 @@ mat"figure();set(gcf, 'Position',  [0, 0, 2500, 2000]); hold on;"
 mat"xlabel('Q')"
 mat"ylabel('P')"
 mat"title($h_title)"
-mat"axis([-.3, .3, -.3, .3])"
+mat"axis([-.9, .9, -.45, .45])"
 # mat"axis([-1, 1, -.5, .5])"
 @showprogress for k=1:N_iter_Q
     for j=1:N_iter_P
