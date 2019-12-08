@@ -25,28 +25,28 @@ include("Dimer_Lagrangian_Descriptor.jl")
     Yfind(h)=sqrt(h/(2h+1));
 
     
-    H = range(.13, stop = .155, length = 6)
-    H = range(.11, stop = .21, length = 15)
-    t=20
+    H = range(.13, stop = .14, length = 6)
+    # H = range(.11, stop = .21, length = 15)
+    t=25
     # H=.135
     count = 1
     right_now = replace(replace(replace(string(Dates.now()),"."=>"_"),":"=>"_"),"-"=>"_")
-    H=.135
+    # H=.135
 end
-# while count <= length(H)
-    @everywhere t_end=100
+while count <= length(H)
+    @everywhere t_end=20
     
     @everywhere P=Yfind(H[count])
 
-    @everywhere     N=1000;#50
+    @everywhere     N=500;#50
     # Q_start=.20
     # Q_end=2.5
     # @everywhere  Q_end=5e-2
     # @everywhere  Q_end=2.25
-    @everywhere  Q_end=.55
+    @everywhere  Q_end=1.0
     @everywhere  Q_start=-Q_end
     # @everywhere  Q_end=.00002
-    # @everywhere  Q_start=0.0
+    @everywhere  Q_start=0.0
  
     # @everywhere  n_iter_P=2001
     # @everywhere  P_start=-.5
@@ -55,8 +55,8 @@ end
     @everywhere  P_start=P-6e-3
     @everywhere  P_end=P+5e-3
 
-    @everywhere  P_start=0.25
-    @everywhere  P_end=.42
+    @everywhere  P_start=0.0
+    @everywhere  P_end=.6
     # # P_end=1
     @everywhere  t_end_mesh = t_end * ones(n_iter_Q,n_iter_P)
     @everywhere  ArrP=range(P_start,stop=P_end,length=n_iter_P)
@@ -184,15 +184,15 @@ mat"title($h_title)"
 # mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$LD)"
-# mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $LD)"
-# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
-# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
+mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $LD)"
+mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
+mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
 mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"colormap winter"
-mat"colormap(brewermap([],'Spectral'))"
+mat"colormap(twilight)"
 mat"colorbar"
 Q_fix=sqrt(6)/3
 mat"plot($Q_fix,0,'b.','MarkerSize',30)"
@@ -202,7 +202,7 @@ mat"plot(0,$P,'r.','MarkerSize',30)"
 mat"plot(0,-$P,'r.','MarkerSize',30)"
 # mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
 # mat"axis([ $Q_start,$Q_end,-$P_end,$P_end ])"
-mat"axis([ $Q_start, $Q_end,$P_start,$P_end ])"
+# mat"axis([ $Q_start, $Q_end,$P_start,$P_end ])"
 
 mat"savefig($file_name1)"
 mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1000]); hold on;"
@@ -210,15 +210,15 @@ mat"title($h_title)"
 # mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM)"
-# mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $LD)"
-# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
+mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gradM)"
+mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM)"
 mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
-# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
+mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"colormap winter"
-mat"colormap(brewermap([],'Spectral'))"
+mat" cmocean('balance')"
 mat"colorbar"
 Q_fix=sqrt(6)/3
 mat"plot($Q_fix,0,'b.','MarkerSize',30)"
@@ -226,10 +226,14 @@ mat"plot(-$Q_fix,0,'b.','MarkerSize',30)"
 
 mat"plot(0,$P,'r.','MarkerSize',30)"
 mat"plot(0,-$P,'r.','MarkerSize',30)"
-mat"axis([ $Q_start, $Q_end,$P_start,$P_end ])"
+# mat"axis([ $Q_start, $Q_end,$P_start,$P_end ])"
+# mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+
+
 
 mat"savefig($file_name2)"
 
 
+@everywhere global count += 1
 
-# end
+end
