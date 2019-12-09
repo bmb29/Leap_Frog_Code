@@ -10,7 +10,7 @@ include("leap_frog_definitions.jl")
 
 barrier=5
 
-hit_max=20
+hit_max=100
 length_max=30000
 condition_escape(u, t, integrator) =  u[5]>length_max || u[6]>hit_max || maximum([abs(u[1]),abs(u[2]),abs(u[3]),abs(u[4])]) > barrier 
 
@@ -38,7 +38,7 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
     Point=[.8*Q2,P2]
     # Point=[Q2,P2]
 
-    if norm(Point_2-Point)>.5 && norm(Point_3-Point)>.5 && norm(Point_1-Point)>.25
+    if norm(Point_2-Point)>.5 && norm(Point_3-Point)>.5 && norm(Point_1-Point)>.15
         P1 = P1_poly(Q2, P2, H)
         if ~isempty(P1)
             u0=zeros(6)

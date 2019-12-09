@@ -10,7 +10,7 @@ H_start = 0.125
 H_end = 0.4999
 HH = range(H_start, stop = H_end, length = n_iter)
 exit_time = zeros(n_iter)
-max_time = 1e6
+max_time = 1e5
 tspan = (0.0, max_time)
 length_max = 100000
 
@@ -121,7 +121,7 @@ end
 mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1500]); hold on;"
 logT = log10.(exit_time)
 # normalized_hits=hits/N
-mat"plot($HH,$logT,'b.','MarkerSize',10)"
+mat"plot($HH,$logT,'k.','MarkerSize',3)"
 min=minimum(logT)
 max=maximum(logT)
-mat"axis([ .125, .15, $min,$max])"
+mat"axis([ .125, .4999, $min,$max])"
