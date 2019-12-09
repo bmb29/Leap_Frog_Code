@@ -25,7 +25,7 @@ include("Dimer_Lagrangian_Descriptor.jl")
     Yfind(h)=sqrt(h/(2h+1));
 
     
-    H = range(.13, stop = .1317, length = 7)
+    H = range(.13, stop = .1317, length = 8)
     # H = range(.11, stop = .21, length = 15)
 
     count = 1
@@ -34,16 +34,16 @@ include("Dimer_Lagrangian_Descriptor.jl")
 end
 while count <= length(H)
     # @everywhere t_end=15
-      @everywhere t_end=120
+      @everywhere t_end=110
 
     @everywhere P=Yfind(H[count])
 
-    @everywhere     N=1000;#50
+    @everywhere     N=2000;#50
     # Q_start=.20
     # Q_end=2.5
     # @everywhere  Q_end=5e-2
     # @everywhere  Q_end=2.25
-    @everywhere  Q_end=5e-2
+    @everywhere  Q_end=9e-2
     @everywhere  Q_start=-Q_end
     # @everywhere  Q_end=.00002
     @everywhere  Q_start=0.0
@@ -52,8 +52,8 @@ while count <= length(H)
     # @everywhere  P_start=-.5
     @everywhere  n_iter_P=N
     @everywhere  n_iter_Q=N
-    @everywhere  P_start=P-5e-3
-    @everywhere  P_end=P+5e-3
+    @everywhere  P_start=P-9e-3
+    @everywhere  P_end=P+7e-3
 
     # @everywhere  P_start=0.0
     # @everywhere  P_end=.45
@@ -145,10 +145,10 @@ mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1000]); hold on;"
 mat"title($h_title)"
 # mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
-mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$LD)"
-mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $LD)"
-mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
-mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
+mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],gM)"
+mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gM)"
+mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gM)"
+mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gM)"
 mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
 
 

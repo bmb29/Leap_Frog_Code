@@ -64,11 +64,11 @@ function Dimer_Lagrangian_Descriptor_Function(mesh, H,  t_end)
             # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-5,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
             # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-5,abstol=1e-8,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
-            sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
-            sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-6,abstol=1e-9,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
         
-            # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
-            # sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
+            sol_b=solve(prob_b, Tsit5(),maxiters=1e20,reltol=1e-7,abstol=1e-10,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
 
 
             # sol_f=solve(prob_f, Tsit5(),maxiters=1e20,reltol=1e-9,abstol=1e-12,callback=cb,save_idxs = [5],save_every_step=false, save_end=true, dense=false)#,abstol=1e-9)
