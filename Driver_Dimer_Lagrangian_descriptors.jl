@@ -25,7 +25,7 @@ include("Dimer_Lagrangian_Descriptor.jl")
     Yfind(h)=sqrt(h/(2h+1));
 
     
-    H = range(.13, stop = .1317, length = 8)
+    H = range(.13, stop = .132, length = 8)
     # H = range(.11, stop = .21, length = 15)
 
     count = 1
@@ -38,12 +38,12 @@ while count <= length(H)
 
     @everywhere P=Yfind(H[count])
 
-    @everywhere     N=2000;#50
+    @everywhere     N=1000;#50
     # Q_start=.20
     # Q_end=2.5
     # @everywhere  Q_end=5e-2
     # @everywhere  Q_end=2.25
-    @everywhere  Q_end=9e-2
+    @everywhere  Q_end=2.0e-1
     @everywhere  Q_start=-Q_end
     # @everywhere  Q_end=.00002
     @everywhere  Q_start=0.0
@@ -52,8 +52,8 @@ while count <= length(H)
     # @everywhere  P_start=-.5
     @everywhere  n_iter_P=N
     @everywhere  n_iter_Q=N
-    @everywhere  P_start=P-9e-3
-    @everywhere  P_end=P+7e-3
+    @everywhere  P_start=P-9e-2
+    @everywhere  P_end=P+2e-2
 
     # @everywhere  P_start=0.0
     # @everywhere  P_end=.45
@@ -99,9 +99,19 @@ biggest_X=maximum(filter(!isnan,Log_gradM_X))
 biggest_Y=maximum(filter(!isnan,Log_gradM_Y))
 smallest_X=minimum(filter(!isnan,Log_gradM_X))
 smallest_Y=minimum(filter(!isnan,Log_gradM_Y))
+Nl,Nl=size(gradM_X)
+gradM=zeros(Nl,Nl)
+for i=1:Nl
+    for j=1:Nl
+        cutoff_X=2
+        cutoff_Y=2
+        X=maximum([Log_gradM_X[i,j], cutoff_X])
+        Y=maximum([Log_gradM_Y[i,j], cutoff_Y])
+        gradM[i,j]=log10(10^(2*X)+10^(2*Y))
+    end
+end
 
 
-gradM=log10.(gM)
 # gradM=10 .^gradM
 SAVE_DATA=Dict("LD"=>LD,"gradM"=>gradM,"Q_end"=>Q_end,"Q_start"=>Q_start, "P_start"=>P_start, "P_end"=>P_end,"N"=>N,"Energy"=>H[count],"ArrP"=>ArrP, "ArrQ"=>ArrQ,"t_end"=>t_end)
 @save h_BSON SAVE_DATA
@@ -114,8 +124,8 @@ mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
 mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$LD)"
 mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $LD)"
-mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
-mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
+# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $LD)"
+# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $LD)"
 # mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
@@ -140,23 +150,25 @@ mat"savefig($file_name1)"
 
 
 
+SAVE_DATA=Dict("LD"=>LD,"gradM"=>gradM,"Q_end"=>Q_end,"Q_start"=>Q_start, "P_start"=>P_start, "P_end"=>P_end,"N"=>N,"Energy"=>H[count],"ArrP"=>ArrP, "ArrQ"=>ArrQ,"t_end"=>t_end)
+@save h_BSON SAVE_DATA
 
 mat"figure();set(gcf, 'Position',  [0, 0, 1500, 1000]); hold on;"
 mat"title($h_title)"
-# mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
-# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
-mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],gM)"
-mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gM)"
-mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gM)"
-mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gM)"
 mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
 
+# mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM, $clims)"
+# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM, $clims)"
+mat"imagesc([$Q_start , $Q_end ],[$P_start, $P_end],$gradM)"
+mat"imagesc([-$Q_start, -$Q_end ],[$P_start, $P_end], $gradM)"
+# mat"imagesc([$Q_start, $Q_end ],[-$P_start, -$P_end], $gradM)"
+# mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
+# mat"axis([ -$Q_end,$Q_end,-$P_end,$P_end ])"
 
 # mat"imagesc([-$Q_start, -$Q_end ],[-$P_start, -$P_end], $gradM)"
 # mat"imagesc([0,-$Q_end ],[$P_start, $P_end],$gradM, $clims)"
 # mat"colormap winter"
-# mat"colormap(twilight)"
-mat"colormap(brewermap([],'PRGn'))"
+mat" cmocean('balance')"
 
 mat"colorbar"
 Q_fix=sqrt(6)/3
@@ -165,8 +177,9 @@ mat"plot(-$Q_fix,0,'b.','MarkerSize',30)"
 
 mat"plot(0,$P,'r.','MarkerSize',10)"
 mat"plot(0,-$P,'r.','MarkerSize',30)"
+# mat"axis([ -$Q_end,$Q_end,$P_start,$P_end ])"
+# mat"axis([ $Q_start,$Q_end,-$P_end,$P_end ])"
 # mat"axis([ $Q_start, $Q_end,$P_start,$P_end ])"
-
 
 mat"savefig($file_name2)"
 
